@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Удалить вариант</title>
+</head>
+<body>
+    <h1>Удалить вариант {{ object.id }}?</h1>
+    
+    <p>Audio ID: {{ object.audio_id }}</p>
+    
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit">Да, удалить</button>
+        <a href="{% url 'hsk1:listening_list' %}">Отмена</a>
+    </form>
+</body>
+</html>
