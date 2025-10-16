@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Все варианты чтения</title>
+</head>
+<body>
+    <h1>Варианты чтения HSK1</h1>
+
+    <a href="{% url 'hsk2:sections' %}">Назад к секциям</a>
+    <br>
+    <a href="{% url 'hsk2:reading_create' %}">Создать новый вариант</a>
+    
+    <ul>
+    {% for variant in reading_variants %}
+        <li>
+            <strong>Вариант {{ variant.id }}</strong>:
+            <br>
+            <a href="{% url 'hsk2:reading_detail' variant.pk %}">Просмотреть</a> |
+            <a href="{% url 'hsk2:reading_update' variant.pk %}">Редактировать</a> |
+            <a href="{% url 'hsk2:reading_delete' variant.pk %}">Удалить</a>
+        </li>
+    {% empty %}
+        <li>Нет вариантов аудирования</li>
+    {% endfor %}
+    </ul>
+</body>
+</html>

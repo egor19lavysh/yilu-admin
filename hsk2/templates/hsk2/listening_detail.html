@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Вариант аудирования HSK2 #{{ listening.id }}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #9C27B0;
+            padding-bottom: 10px;
+        }
+        .actions {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        .actions a {
+            padding: 8px 16px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .back-btn { background: #757575; color: white; }
+        .edit-btn { background: #FF9800; color: white; }
+        .delete-btn { background: #f44336; color: white; }
+        
+        .task-section {
+            border: 2px solid #9C27B0;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 10px;
+            background: #f3e5f5;
+        }
+        .question {
+            background: white;
+            padding: 12px;
+            margin: 8px 0;
+            border-left: 4px solid #2196F3;
+            border-radius: 5px;
+        }
+        .option {
+            background: #e3f2fd;
+            padding: 8px;
+            margin: 4px 0;
+            border-radius: 3px;
+            margin-left: 20px;
+        }
+        .correct {
+            background: #c8e6c9;
+            border-left: 4px solid #4CAF50;
+        }
+        .info-row {
+            display: flex;
+            margin: 5px 0;
+        }
+        .info-label {
+            font-weight: bold;
+            min-width: 150px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🎧 Вариант аудирования HSK2 #{{ listening.id }}</h1>
+    </div>
+
+    <div class="info-row">
+        <span class="info-label">Audio ID:</span>
+        <span>{{ listening.audio_id }}</span>
+    </div>
+
+    <!-- Задание 1 -->
+    <div class="task-section">
+        <h2>1️⃣ Задание 1 (10 вопросов - Да/Нет)</h2>
+        {% with task1=listening.first_type_tasks.first %}
+        {% if task1 %}
+        <div class="info-row">
+            <span class="info-label">ID картинки:</span>
+            <span>{{ task1.picture_id }}</span>
+        </div>
+        
+        <h3>Вопросы:</h3>
+        {% for question in task1.questions.all %}
+        <div class="question {% if question.is_correct %}correct{% endif %}">
+            <strong>Вопрос {{ forloop.counter }}:</strong>
+            {% if question.is_correct %}✅ Правильный ответ{% else %}❌ Неправильный ответ{% endif %}
+        </div>
+        {% endfor %}
+        {% else %}
+        <p style="color: #666;">Задание не заполнено</p>
+        {% endif %}
+        {% endwith %}
+    </div>
+
+    <!-- Задание 2 -->
+    <div class="task-section">
+        <h2>2️⃣ Задание 2 (5 вопросов - Выбор A-F)</h2>
+        {% with task2=listening.second_type_tasks.all.0 %}
+        {% if task2 %}
+        <div class="info-row">
+            <span class="info-label">ID картинки:</span>
+            <span>{{ task2.picture_id }}</span>
+        </div>
+        
+        <h3>Вопросы:</h3>
+        {% for question in task2.questions.all %}
+        <div class="question">
+            <strong>Вопрос {{ forloop.counter }}:</strong>
+            Правильный ответ: <strong>{{ question.correct_letter }}</strong>
+        </div>
+        {% endfor %}
+        {% else %}
+        <p style="color: #666;">Задание не заполнено</p>
+        {% endif %}
+        {% endwith %}
+    </div>
+
+    <!-- Задание 3 -->
+    <div class="task-section">
+        <h2>3️⃣ Задание 3 (5 вопросов - Выбор A-F)</h2>
+        {% with task3=listening.second_type_tasks.all.1 %}
+        {% if task3 %}
+        <div class="info-row">
+            <span class="info-label">ID картинки:</span>
+            <span>{{ task3.picture_id }}</span>
+        </div>
+        
+        <h3>Вопросы:</h3>
+        {% for question in task3.questions.all %}
+        <div class="question">
+            <strong>Вопрос {{ forloop.counter }}:</strong>
+            Правильный ответ: <strong>{{ question.correct_letter }}</strong>
+        </div>
+        {% endfor %}
+        {% else %}
+        <p style="color: #666;">Задание не заполнено</p>
+        {% endif %}
+        {% endwith %}
+    </div>
+
+    <!-- Задание 4 -->
+    <div class="task-section">
+        <h2>4️⃣ Задание 4 (10 вопросов с вариантами ответов)</h2>
+        {% with task4=listening.third_type_tasks.all.0 %}
+        {% if task4 %}
+        <h3>Вопросы и варианты ответов:</h3>
+        {% for question in task4.questions.all %}
+        <div class="question">
+            <strong>Вопрос {{ forloop.counter }}:</strong>
+            Правильный ответ: <strong>{{ question.correct_letter }}</strong>
+            
+            <h4>Варианты ответов:</h4>
+            {% for option in question.options.all %}
+            <div class="option {% if option.letter == question.correct_letter %}correct{% endif %}">
+                <strong>{{ option.letter }}:</strong> {{ option.text }}
+                {% if option.letter == question.correct_letter %} ✅{% endif %}
+            </div>
+            {% endfor %}
+        </div>
+        {% endfor %}
+        {% else %}
+        <p style="color: #666;">Задание не заполнено</p>
+        {% endif %}
+        {% endwith %}
+    </div>
+
+    <!-- Задание 5 -->
+    <div class="task-section">
+        <h2>5️⃣ Задание 5 (5 вопросов с вариантами ответов)</h2>
+        {% with task5=listening.third_type_tasks.all.1 %}
+        {% if task5 %}
+        <h3>Вопросы и варианты ответов:</h3>
+        {% for question in task5.questions.all %}
+        <div class="question">
+            <strong>Вопрос {{ forloop.counter }}:</strong>
+            Правильный ответ: <strong>{{ question.correct_letter }}</strong>
+            
+            <h4>Варианты ответов:</h4>
+            {% for option in question.options.all %}
+            <div class="option {% if option.letter == question.correct_letter %}correct{% endif %}">
+                <strong>{{ option.letter }}:</strong> {{ option.text }}
+                {% if option.letter == question.correct_letter %} ✅{% endif %}
+            </div>
+            {% endfor %}
+        </div>
+        {% endfor %}
+        {% else %}
+        <p style="color: #666;">Задание не заполнено</p>
+        {% endif %}
+        {% endwith %}
+    </div>
+
+    <div class="actions">
+        <a href="{% url 'hsk2:listening_list' %}" class="back-btn">← Назад к списку</a>
+        <a href="{% url 'hsk2:listening_update' listening.pk %}" class="edit-btn">✏️ Редактировать</a>
+        <a href="{% url 'hsk2:listening_delete' listening.pk %}" class="delete-btn">🗑️ Удалить</a>
+    </div>
+</body>
+</html>

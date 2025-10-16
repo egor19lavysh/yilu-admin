@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Удаление варианта аудирования</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            text-align: center;
+        }
+        .warning-box {
+            background: #ffebee;
+            border: 2px solid #f44336;
+            border-radius: 10px;
+            padding: 30px;
+            margin: 20px 0;
+        }
+        .warning-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+        .variant-info {
+            background: white;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+            text-align: left;
+        }
+        .actions {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 30px;
+        }
+        .delete-btn {
+            background: #f44336;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .cancel-btn {
+            background: #757575;
+            color: white;
+            padding: 12px 30px;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="warning-box">
+        <div class="warning-icon">⚠️</div>
+        <h1>Удаление варианта аудирования</h1>
+        <p>Вы уверены, что хотите удалить этот вариант? Это действие нельзя отменить.</p>
+        
+        <div class="variant-info">
+            <strong>Вариант #{{ object.id }}</strong><br>
+            <strong>Audio ID:</strong> {{ object.audio_id }}<br>
+            <strong>Заданий 1 типа:</strong> {{ object.first_type_tasks.count }}<br>
+            <strong>Заданий 2 типа:</strong> {{ object.second_type_tasks.count }}<br>
+            <strong>Заданий 3 типа:</strong> {{ object.third_type_tasks.count }}
+        </div>
+
+        <form method="post">
+            {% csrf_token %}
+            <div class="actions">
+                <button type="submit" class="delete-btn">🗑️ Да, удалить</button>
+                <a href="{% url 'hsk2:listening_detail' object.pk %}" class="cancel-btn">❌ Отмена</a>
+            </div>
+        </form>
+    </div>
+</body>
+</html>
