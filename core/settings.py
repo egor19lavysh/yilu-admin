@@ -39,7 +39,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'main',
     'hsk1',
-    'hsk2'
+    'hsk2',
+    'hsk3'
 ]
 
 MIDDLEWARE = [
