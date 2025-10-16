@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Вариант чтения {{ reading.id }}</title>
+    <style>
+        .task-section {
+            border: 2px solid #2196F3;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 10px;
+            background: #e3f2fd;
+        }
+        .question {
+            background: white;
+            padding: 15px;
+            margin: 10px 0;
+            border-left: 4px solid #FF9800;
+            border-radius: 5px;
+        }
+        .option {
+            background: #f3e5f5;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 3px;
+        }
+        .correct {
+            background: #c8e6c9;
+            border-left: 4px solid #4CAF50;
+        }
+    </style>
+</head>
+<body>
+    <h1>📖 Вариант чтения HSK1 #{{ reading.id }}</h1>
+    
+    <!-- Задание 1 -->
+    {% if task1 %}
+    <div class="task-section">
+        <h2>1️⃣ Задание 1</h2>
+        <p><strong>ID картинки:</strong> {{ task1.picture_id }}</p>
+        
+        <h3>Вопросы:</h3>
+        {% for option in task1.options.all %}
+        <div class="question {% if option.is_correct %}correct{% endif %}">
+            <strong>Вопрос {{ forloop.counter }}:</strong>
+            {% if option.is_correct %}✅ Правильный ответ{% else %}❌ Неправильный ответ{% endif %}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Задание 2 -->
+    {% if task2 %}
+    <div class="task-section">
+        <h2>2️⃣ Задание 2</h2>
+        <p><strong>ID картинки:</strong> {{ task2.picture_id }}</p>
+        
+        <h3>Предложения:</h3>
+        {% for sentence in task2.sentences.all %}
+        <div class="question">
+            <strong>Предложение {{ forloop.counter }}:</strong><br>
+            {{ sentence.text }}<br>
+            <strong>Правильный ответ:</strong> {{ sentence.correct_letter }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Задание 3 -->
+    {% if task3 %}
+    <div class="task-section">
+        <h2>3️⃣ Задание 3</h2>
+        
+        <h3>Опции для выбора:</h3>
+        {% for option in task3.options.all %}
+        <div class="option">
+            <strong>{{ option.letter }}:</strong> {{ option.text }}
+        </div>
+        {% endfor %}
+        
+        <h3>Вопросы:</h3>
+        {% for sentence in task3.sentences.all %}
+        <div class="question">
+            <strong>Вопрос {{ forloop.counter }}:</strong><br>
+            {{ sentence.text }}<br>
+            <strong>Правильный ответ:</strong> {{ sentence.correct_letter }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Задание 4 -->
+    {% if task4 %}
+    <div class="task-section">
+        <h2>4️⃣ Задание 4</h2>
+        
+        <h3>Опции для выбора:</h3>
+        {% for option in task4.options.all %}
+        <div class="option">
+            <strong>{{ option.letter }}:</strong> {{ option.text }}
+        </div>
+        {% endfor %}
+        
+        <h3>Вопросы:</h3>
+        {% for sentence in task4.sentences.all %}
+        <div class="question">
+            <strong>Вопрос {{ forloop.counter }}:</strong><br>
+            {{ sentence.text }}<br>
+            <strong>Правильный ответ:</strong> {{ sentence.correct_letter }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div style="margin-top: 30px;">
+        <a href="{% url 'hsk1:reading_list' %}">← Назад к списку вариантов</a> |
+        <a href="{% url 'hsk1:reading_update' reading.pk %}">✏️ Редактировать</a> |
+        <a href="{% url 'hsk1:reading_delete' reading.pk %}" style="color: red;">🗑️ Удалить</a>
+    </div>
+</body>
+</html>

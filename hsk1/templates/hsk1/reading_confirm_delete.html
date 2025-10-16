@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Удалить вариант чтения</title>
+</head>
+<body>
+    <h1>Удалить вариант чтения {{ object.id }}?</h1>
+    
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit">Да, удалить</button>
+        <a href="{% url 'hsk1:reading_list' %}">Отмена</a>
+    </form>
+</body>
+</html>

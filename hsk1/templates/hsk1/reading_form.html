@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{% if is_update %}Редактирование{% else %}Создание{% endif %} варианта чтения HSK1</title>
+    <style>
+        .section {
+            border: 2px solid #2196F3;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 10px;
+            background: #e3f2fd;
+        }
+        .question {
+            background: white;
+            padding: 15px;
+            margin: 10px 0;
+            border-left: 4px solid #FF9800;
+            border-radius: 5px;
+        }
+        .option {
+            background: #f3e5f5;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 3px;
+        }
+        input, select, textarea {
+            padding: 8px;
+            margin: 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            width: 300px;
+        }
+        textarea {
+            width: 500px;
+            height: 60px;
+        }
+        label {
+            font-weight: bold;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>{% if is_update %}✏️ Редактирование{% else %}📖 Создание{% endif %} варианта чтения HSK1</h1>
+    
+    {% if error %}
+    <div style="color: red; padding: 10px; background: #ffebee; border: 1px solid red;">
+        {{ error }}
+    </div>
+    {% endif %}
+    
+    <form method="post">
+        {% csrf_token %}
+        
+        <!-- Задание 1 -->
+        <div class="section">
+            <h2>1️⃣ Задание 1 (5 вопросов - Да/Нет)</h2>
+            <p>
+                <label>ID картинки для задания 1:</label>
+                <input type="text" name="task1_picture_id" 
+                       value="{% if is_update %}{{ task1_picture_id }}{% endif %}" 
+                       required placeholder="pic_reading1_123">
+            </p>
+            
+            <h3>Вопросы (отметьте правильные ответы):</h3>
+            {% for i in "12345" %}
+            <div class="question">
+                <strong>Вопрос {{ i }}:</strong>
+                <input type="checkbox" name="task1_question_{{ i }}" value="true"
+                       {% if is_update and task1_options and forloop.counter0 < task1_options|length %}
+                           {% if task1_options.forloop.counter0.is_correct %}checked{% endif %}
+                       {% endif %}>
+                <label>Правильный ответ</label>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Задание 2 -->
+        <div class="section">
+            <h2>2️⃣ Задание 2 (5 вопросов с текстом)</h2>
+            <p>
+                <label>ID картинки для задания 2:</label>
+                <input type="text" name="task2_picture_id" 
+                       value="{% if is_update %}{{ task2_picture_id }}{% endif %}" 
+                       required placeholder="pic_reading2_123">
+            </p>
+            
+            <h3>Предложения и правильные ответы:</h3>
+            {% for i in "12345" %}
+            <div class="question">
+                <strong>Предложение {{ i }}:</strong><br>
+                <textarea name="task2_text_{{ i }}" placeholder="Текст предложения..." required>
+{% if is_update and task2_sentences and forloop.counter0 < task2_sentences|length %}{{ task2_sentences.forloop.counter0.text }}{% endif %}</textarea><br>
+                
+                <label>Правильная буква:</label>
+                <select name="task2_question_{{ i }}" required>
+                    <option value="">-- Выберите букву --</option>
+                    {% for letter in "ABCDEF" %}
+                    <option value="{{ letter }}"
+                        {% if is_update and task2_sentences and forloop.parentloop.counter0 < task2_sentences|length %}
+                            {% if task2_sentences.forloop.parentloop.counter0.correct_letter == letter %}selected{% endif %}
+                        {% endif %}>{{ letter }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Задание 3 -->
+        <div class="section">
+            <h2>3️⃣ Задание 3 (6 опций + 5 вопросов)</h2>
+            
+            <h3>Опции для выбора (A-F):</h3>
+            {% for letter in "ABCDEF" %}
+            <div class="option">
+                <strong>Опция {{ letter }}:</strong>
+                <input type="text" name="task3_option_{{ letter }}" 
+                       value="{% if is_update and task3_options %}{{ task3_options.letter }}{% endif %}" 
+                       required placeholder="Текст опции {{ letter }}">
+            </div>
+            {% endfor %}
+            
+            <h3>Вопросы:</h3>
+            {% for i in "12345" %}
+            <div class="question">
+                <strong>Вопрос {{ i }}:</strong><br>
+                <textarea name="task3_text_{{ i }}" placeholder="Текст вопроса..." required>
+{% if is_update and task3_sentences and forloop.counter0 < task3_sentences|length %}{{ task3_sentences.forloop.counter0.text }}{% endif %}</textarea><br>
+                
+                <label>Правильная буква:</label>
+                <select name="task3_question_{{ i }}" required>
+                    <option value="">-- Выберите букву --</option>
+                    {% for letter in "ABCDEF" %}
+                    <option value="{{ letter }}"
+                        {% if is_update and task3_sentences and forloop.parentloop.counter0 < task3_sentences|length %}
+                            {% if task3_sentences.forloop.parentloop.counter0.correct_letter == letter %}selected{% endif %}
+                        {% endif %}>{{ letter }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Задание 4 -->
+        <div class="section">
+            <h2>4️⃣ Задание 4 (6 опций + 5 вопросов)</h2>
+            
+            <h3>Опции для выбора (A-F):</h3>
+            {% for letter in "ABCDEF" %}
+            <div class="option">
+                <strong>Опция {{ letter }}:</strong>
+                <input type="text" name="task4_option_{{ letter }}" 
+                       value="{% if is_update and task4_options %}{{ task4_options.letter }}{% endif %}" 
+                       required placeholder="Текст опции {{ letter }}">
+            </div>
+            {% endfor %}
+            
+            <h3>Вопросы:</h3>
+            {% for i in "12345" %}
+            <div class="question">
+                <strong>Вопрос {{ i }}:</strong><br>
+                <textarea name="task4_text_{{ i }}" placeholder="Текст вопроса..." required>
+{% if is_update and task4_sentences and forloop.counter0 < task4_sentences|length %}{{ task4_sentences.forloop.counter0.text }}{% endif %}</textarea><br>
+                
+                <label>Правильная буква:</label>
+                <select name="task4_question_{{ i }}" required>
+                    <option value="">-- Выберите букву --</option>
+                    {% for letter in "ABCDEF" %}
+                    <option value="{{ letter }}"
+                        {% if is_update and task4_sentences and forloop.parentloop.counter0 < task4_sentences|length %}
+                            {% if task4_sentences.forloop.parentloop.counter0.correct_letter == letter %}selected{% endif %}
+                        {% endif %}>{{ letter }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            {% endfor %}
+        </div>
+
+        <button type="submit" style="
+            padding: 15px 30px; 
+            font-size: 18px; 
+            background: {% if is_update %}#FF9800{% else %}#2196F3{% endif %}; 
+            color: white; 
+            border: none; 
+            border-radius: 5px;
+            cursor: pointer;
+        ">
+            {% if is_update %}💾 Сохранить изменения{% else %}✅ Создать вариант чтения{% endif %}
+        </button>
+
+        {% if is_update %}
+        <a href="{% url 'hsk1:reading_detail' reading.pk %}" style="
+            padding: 15px 30px; 
+            font-size: 18px; 
+            background: #ccc; 
+            color: black; 
+            border: none; 
+            border-radius: 5px;
+            text-decoration: none;
+            margin-left: 10px;
+        ">
+            ❌ Отмена
+        </a>
+        {% endif %}
+    </form>
+</body>
+</html>
