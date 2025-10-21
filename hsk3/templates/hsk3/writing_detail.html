@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Вариант письма HSK3 #{{ writing.id }}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #795548;
+            padding-bottom: 10px;
+        }
+        .actions {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        .actions a {
+            padding: 8px 16px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .back-btn { background: #757575; color: white; }
+        .edit-btn { background: #FF9800; color: white; }
+        .delete-btn { background: #f44336; color: white; }
+        
+        .task-section {
+            border: 2px solid #795548;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 10px;
+            background: #efebe9;
+        }
+        .question {
+            background: white;
+            padding: 12px;
+            margin: 8px 0;
+            border-left: 4px solid #2196F3;
+            border-radius: 5px;
+        }
+        .chars-question {
+            background: #fff3e0;
+            padding: 12px;
+            margin: 8px 0;
+            border-radius: 5px;
+            border-left: 4px solid #FF9800;
+        }
+        .text-question {
+            background: #e8f5e8;
+            padding: 12px;
+            margin: 8px 0;
+            border-radius: 5px;
+            border-left: 4px solid #4CAF50;
+        }
+        .info-row {
+            display: flex;
+            margin: 5px 0;
+        }
+        .info-label {
+            font-weight: bold;
+            min-width: 200px;
+        }
+        .question-number {
+            font-size: 16px;
+            font-weight: bold;
+            color: #795548;
+            margin-bottom: 8px;
+        }
+        .chinese-text {
+            font-family: 'SimSun', 'STKaiti', serif;
+            font-size: 18px;
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🖋️ Вариант письма HSK3 #{{ writing.id }}</h1>
+    </div>
+
+    <!-- Задание 1 -->
+    <div class="task-section">
+        <h2>1️⃣ Задание 1 (5 заданий - Составление предложений)</h2>
+        
+        <h3>Задания с иероглифами:</h3>
+        {% for task1 in task1_list %}
+        <div class="chars-question">
+            <div class="question-number">Задание {{ forloop.counter }}</div>
+            
+            <div class="info-row">
+                <span class="info-label">Иероглифы:</span>
+                <span class="chinese-text">{{ task1.chars }}</span>
+            </div>
+            
+            <div class="info-row">
+                <span class="info-label">Правильное предложение:</span>
+                <span class="chinese-text">{{ task1.correct_answer }}</span>
+            </div>
+        </div>
+        {% empty %}
+        <p style="color: #666;">Задание не заполнено</p>
+        {% endfor %}
+    </div>
+
+    <!-- Задание 2 -->
+    <div class="task-section">
+        <h2>2️⃣ Задание 2 (5 заданий - Написание иероглифов)</h2>
+        
+        <h3>Задания с текстом:</h3>
+        {% for task2 in task2_list %}
+        <div class="text-question">
+            <div class="question-number">Задание {{ forloop.counter }}</div>
+            
+            <div class="info-row">
+                <span class="info-label">Текст задания:</span>
+                <span>{{ task2.text }}</span>
+            </div>
+            
+            <div class="info-row">
+                <span class="info-label">Правильный иероглиф/слово:</span>
+                <span class="chinese-text">{{ task2.correct_answer }}</span>
+            </div>
+        </div>
+        {% empty %}
+        <p style="color: #666;">Задание не заполнено</p>
+        {% endfor %}
+    </div>
+
+    <div class="actions">
+        <a href="{% url 'hsk3:writing_list' %}" class="back-btn">← Назад к списку</a>
+        <a href="{% url 'hsk3:writing_update' writing.pk %}" class="edit-btn">✏️ Редактировать</a>
+        <a href="{% url 'hsk3:writing_delete' writing.pk %}" class="delete-btn">🗑️ Удалить</a>
+    </div>
+</body>
+</html>

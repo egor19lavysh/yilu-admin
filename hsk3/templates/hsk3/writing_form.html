@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{% if is_update %}Редактирование{% else %}Создание{% endif %} варианта письма HSK3</title>
+    <style>
+        .section {
+            border: 2px solid #795548;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 10px;
+            background: #efebe9;
+        }
+        .chars-question {
+            background: #fff3e0;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border-left: 4px solid #FF9800;
+        }
+        .text-question {
+            background: #e8f5e8;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border-left: 4px solid #4CAF50;
+        }
+        input, textarea {
+            padding: 8px;
+            margin: 5px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            width: 100%;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+        textarea {
+            height: 60px;
+            resize: vertical;
+        }
+        input {
+            height: 40px;
+        }
+        label {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 5px;
+            margin-top: 10px;
+        }
+        .question-number {
+            font-size: 16px;
+            font-weight: bold;
+            color: #795548;
+            margin-bottom: 10px;
+        }
+        .form-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <h1>{% if is_update %}✏️ Редактирование{% else %}🖋️ Создание{% endif %} варианта письма HSK3</h1>
+        
+        {% if error %}
+        <div style="color: red; padding: 10px; background: #ffebee; border: 1px solid red;">
+            {{ error }}
+        </div>
+        {% endif %}
+        
+        <form method="post">
+            {% csrf_token %}
+
+            <!-- Задание 1 -->
+            <div class="section">
+                <h2>1️⃣ Задание 1 (5 заданий - Составление предложений)</h2>
+                <p><em>Даны иероглифы, нужно составить правильное предложение</em></p>
+                
+                <h3>Задания с иероглифами:</h3>
+                {% for i in "12345" %}
+                <div class="chars-question">
+                    <div class="question-number">Задание {{ i }}</div>
+                    
+                    <label>Иероглифы (через запятую или пробел):</label>
+                    {% if is_update and task1_list and forloop.counter0 < task1_list|length %}
+                    <textarea name="task1_chars_{{ i }}" placeholder="例如：我, 爱, 学习, 中文" required>{{ task1_list.forloop.counter0.chars }}</textarea>
+                    {% else %}
+                    <textarea name="task1_chars_{{ i }}" placeholder="例如：我, 爱, 学习, 中文" required></textarea>
+                    {% endif %}
+                    
+                    <label>Правильное предложение:</label>
+                    {% if is_update and task1_list and forloop.counter0 < task1_list|length %}
+                    <textarea name="task1_answer_{{ i }}" placeholder="例如：我爱学习中文" required>{{ task1_list.forloop.counter0.correct_answer }}</textarea>
+                    {% else %}
+                    <textarea name="task1_answer_{{ i }}" placeholder="例如：我爱学习中文" required></textarea>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Задание 2 -->
+            <div class="section">
+                <h2>2️⃣ Задание 2 (5 заданий - Написание иероглифов)</h2>
+                <p><em>Дано описание или текст, нужно написать правильный иероглиф</em></p>
+                
+                <h3>Задания с текстом:</h3>
+                {% for i in "12345" %}
+                <div class="text-question">
+                    <div class="question-number">Задание {{ i }}</div>
+                    
+                    <label>Текст задания:</label>
+                    {% if is_update and task2_list and forloop.counter0 < task2_list|length %}
+                    <textarea name="task2_text_{{ i }}" placeholder="例如：这个字意思是 'любовь'" required>{{ task2_list.forloop.counter0.text }}</textarea>
+                    {% else %}
+                    <textarea name="task2_text_{{ i }}" placeholder="例如：这个字意思是 'любовь'" required></textarea>
+                    {% endif %}
+                    
+                    <label>Правильный иероглиф/слово:</label>
+                    {% if is_update and task2_list and forloop.counter0 < task2_list|length %}
+                    <input type="text" name="task2_answer_{{ i }}" placeholder="例如：爱" required value="{{ task2_list.forloop.counter0.correct_answer }}">
+                    {% else %}
+                    <input type="text" name="task2_answer_{{ i }}" placeholder="例如：爱" required>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+
+            <div style="text-align: center; margin-top: 30px;">
+                <button type="submit" style="
+                    padding: 12px 30px; 
+                    font-size: 16px; 
+                    background: {% if is_update %}#FF9800{% else %}#795548{% endif %}; 
+                    color: white; 
+                    border: none; 
+                    border-radius: 5px;
+                    cursor: pointer;
+                    margin-right: 10px;
+                ">
+                    {% if is_update %}💾 Сохранить изменения{% else %}✅ Создать вариант письма{% endif %}
+                </button>
+
+                {% if is_update %}
+                <a href="{% url 'hsk3:writing_detail' writing.pk %}" style="
+                    padding: 12px 30px; 
+                    font-size: 16px; 
+                    background: #ccc; 
+                    color: black; 
+                    border: none; 
+                    border-radius: 5px;
+                    text-decoration: none;
+                ">
+                    ❌ Отмена
+                </a>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+</body>
+</html>

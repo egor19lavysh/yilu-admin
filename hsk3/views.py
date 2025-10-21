@@ -4,9 +4,9 @@ from django.urls import reverse_lazy
 from django.shortcuts import redirect
 from .models import *
 
+
 def get_sections(request):
     return render(request, "hsk3/sections.html")
-
 
 class ListeningListView(ListView):
     model = Listening
@@ -280,3 +280,447 @@ class ListeningDeleteView(DeleteView):
     model = Listening
     template_name = 'hsk3/listening_confirm_delete.html'
     success_url = reverse_lazy('hsk3:listening_list')
+
+
+### READING
+
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
+from django.urls import reverse_lazy
+from django.shortcuts import redirect
+from .models import *
+
+class ReadingListView(ListView):
+    model = Reading
+    template_name = 'hsk3/reading_list.html'
+    context_object_name = 'reading_variants'
+
+class ReadingCreateView(CreateView):
+    model = Reading
+    template_name = 'hsk3/reading_form.html'
+    fields = []
+    
+    def get(self, request, *args, **kwargs):
+        return self.render_to_response({})
+    
+    def post(self, request, *args, **kwargs):
+        try:
+            # 1. Создаем основной вариант
+            reading_var = Reading.objects.create()
+            
+            # 2. Задание 1 (6 опций A-F + 5 вопросов)
+            task1 = ReadingFirstTask.objects.create(reading_var=reading_var)
+            # Опции задания 1
+            for letter in ['A', 'B', 'C', 'D', 'E', 'F']:
+                option_text = request.POST.get(f'task1_option_{letter}')
+                ReadingFirstTaskOption.objects.create(
+                    letter=letter,
+                    text=option_text,
+                    task=task1
+                )
+            # Вопросы задания 1
+            for i in range(1, 6):
+                text = request.POST.get(f'task1_text_{i}')
+                correct_letter = request.POST.get(f'task1_question_{i}')
+                ReadingFirstTaskQuestion.objects.create(
+                    text=text,
+                    correct_letter=correct_letter,
+                    task=task1
+                )
+            
+            # 3. Задание 2 (5 опций A-E + 5 вопросов) - используем ReadingFirstTask
+            task2 = ReadingFirstTask.objects.create(reading_var=reading_var)
+            # Опции задания 2
+            for letter in ['A', 'B', 'C', 'D', 'E']:
+                option_text = request.POST.get(f'task2_option_{letter}')
+                ReadingFirstTaskOption.objects.create(
+                    letter=letter,
+                    text=option_text,
+                    task=task2
+                )
+            # Вопросы задания 2
+            for i in range(1, 6):
+                text = request.POST.get(f'task2_text_{i}')
+                correct_letter = request.POST.get(f'task2_question_{i}')
+                ReadingFirstTaskQuestion.objects.create(
+                    text=text,
+                    correct_letter=correct_letter,
+                    task=task2
+                )
+            
+            # 4. Задание 3 (6 опций A-F + 5 вопросов)
+            task3 = ReadingSecondTask.objects.create(reading_var=reading_var)
+            # Опции задания 3
+            for letter in ['A', 'B', 'C', 'D', 'E', 'F']:
+                option_text = request.POST.get(f'task3_option_{letter}')
+                ReadingSecondTaskOption.objects.create(
+                    letter=letter,
+                    text=option_text,
+                    task=task3
+                )
+            # Вопросы задания 3
+            for i in range(1, 6):
+                text = request.POST.get(f'task3_text_{i}')
+                correct_letter = request.POST.get(f'task3_question_{i}')
+                ReadingSecondTaskQuestion.objects.create(
+                    text=text,
+                    correct_letter=correct_letter,
+                    task=task3
+                )
+            
+            # 5. Задание 4 (6 опций A-F + 5 вопросов) - используем ReadingSecondTask
+            task4 = ReadingSecondTask.objects.create(reading_var=reading_var)
+            # Опции задания 4
+            for letter in ['A', 'B', 'C', 'D', 'E', 'F']:
+                option_text = request.POST.get(f'task4_option_{letter}')
+                ReadingSecondTaskOption.objects.create(
+                    letter=letter,
+                    text=option_text,
+                    task=task4
+                )
+            # Вопросы задания 4
+            for i in range(1, 6):
+                text = request.POST.get(f'task4_text_{i}')
+                correct_letter = request.POST.get(f'task4_question_{i}')
+                ReadingSecondTaskQuestion.objects.create(
+                    text=text,
+                    correct_letter=correct_letter,
+                    task=task4
+                )
+            
+            # 6. Задание 5 (10 вопросов с вариантами A-C)
+            for i in range(1, 11):
+                text = request.POST.get(f'task5_text_{i}')
+                correct_letter = request.POST.get(f'task5_question_{i}')
+                task5 = ReadingThirdTask.objects.create(
+                    text=text,
+                    correct_letter=correct_letter,
+                    reading_var=reading_var
+                )
+                # Варианты ответов для задания 5
+                for letter in ['A', 'B', 'C']:
+                    option_text = request.POST.get(f'task5_option{letter}_{i}')
+                    ReadingThirdTaskOption.objects.create(
+                        letter=letter,
+                        text=option_text,
+                        task=task5
+                    )
+            
+            return redirect('hsk3:reading_detail', pk=reading_var.pk)
+            
+        except Exception as e:
+            return self.render_to_response({
+                'error': f'Ошибка при создании: {str(e)}'
+            })
+
+class ReadingDetailView(DetailView):
+    model = Reading
+    template_name = 'hsk3/reading_detail.html'
+    context_object_name = 'reading'
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        reading = self.object
+        
+        # Получаем все задания для отображения
+        first_tasks = list(reading.first_tasks.all())
+        if len(first_tasks) > 0:
+            context['task1'] = first_tasks[0]  # Первое задание первого типа
+        if len(first_tasks) > 1:
+            context['task2'] = first_tasks[1]  # Второе задание первого типа
+        
+        second_tasks = list(reading.second_tasks.all())
+        if len(second_tasks) > 0:
+            context['task3'] = second_tasks[0]  # Первое задание второго типа
+        if len(second_tasks) > 1:
+            context['task4'] = second_tasks[1]  # Второе задание второго типа
+        
+        # Задание 5 - все объекты ThirdTask
+        context['task5_list'] = reading.third_tasks.all()
+        
+        return context
+
+class ReadingUpdateView(UpdateView):
+    model = Reading
+    template_name = 'hsk3/reading_form.html'
+    fields = []
+    
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        context = self.get_context_data()
+        
+        reading = self.object
+        context['reading'] = reading
+        context['is_update'] = True
+        
+        # Задания 1 и 2 (ReadingFirstTask)
+        first_tasks = list(reading.first_tasks.all())
+        if len(first_tasks) > 0:
+            task1 = first_tasks[0]
+            context['task1_options'] = {opt.letter: opt.text for opt in task1.options.all()}
+            context['task1_questions'] = list(task1.questions.all())
+        
+        if len(first_tasks) > 1:
+            task2 = first_tasks[1]
+            context['task2_options'] = {opt.letter: opt.text for opt in task2.options.all()}
+            context['task2_questions'] = list(task2.questions.all())
+        
+        # Задания 3 и 4 (ReadingSecondTask)
+        second_tasks = list(reading.second_tasks.all())
+        if len(second_tasks) > 0:
+            task3 = second_tasks[0]
+            context['task3_options'] = {opt.letter: opt.text for opt in task3.options.all()}
+            context['task3_questions'] = list(task3.questions.all())
+        
+        if len(second_tasks) > 1:
+            task4 = second_tasks[1]
+            context['task4_options'] = {opt.letter: opt.text for opt in task4.options.all()}
+            context['task4_questions'] = list(task4.questions.all())
+        
+        # Задание 5 (ReadingThirdTask)
+        task5_list = list(reading.third_tasks.all())
+        context['task5_list'] = task5_list
+        # Собираем варианты ответов для задания 5
+        task5_options = {}
+        for task5 in task5_list:
+            task5_options[task5.id] = {opt.letter: opt.text for opt in task5.options.all()}
+        context['task5_options'] = task5_options
+        
+        return self.render_to_response(context)
+    
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        reading = self.object
+        
+        try:
+            # 1. Обновляем Задание 1
+            first_tasks = list(reading.first_tasks.all())
+            if len(first_tasks) > 0:
+                task1 = first_tasks[0]
+                # Обновляем опции задания 1
+                for letter in ['A', 'B', 'C', 'D', 'E', 'F']:
+                    option_text = request.POST.get(f'task1_option_{letter}')
+                    option = task1.options.filter(letter=letter).first()
+                    if option:
+                        option.text = option_text
+                        option.save()
+                # Обновляем вопросы задания 1
+                questions = list(task1.questions.all())
+                for i in range(1, 6):
+                    if i <= len(questions):
+                        questions[i-1].text = request.POST.get(f'task1_text_{i}')
+                        questions[i-1].correct_letter = request.POST.get(f'task1_question_{i}')
+                        questions[i-1].save()
+            
+            # 2. Обновляем Задание 2
+            if len(first_tasks) > 1:
+                task2 = first_tasks[1]
+                # Обновляем опции задания 2
+                for letter in ['A', 'B', 'C', 'D', 'E']:
+                    option_text = request.POST.get(f'task2_option_{letter}')
+                    option = task2.options.filter(letter=letter).first()
+                    if option:
+                        option.text = option_text
+                        option.save()
+                # Обновляем вопросы задания 2
+                questions = list(task2.questions.all())
+                for i in range(1, 6):
+                    if i <= len(questions):
+                        questions[i-1].text = request.POST.get(f'task2_text_{i}')
+                        questions[i-1].correct_letter = request.POST.get(f'task2_question_{i}')
+                        questions[i-1].save()
+            
+            # 3. Обновляем Задание 3
+            second_tasks = list(reading.second_tasks.all())
+            if len(second_tasks) > 0:
+                task3 = second_tasks[0]
+                # Обновляем опции задания 3
+                for letter in ['A', 'B', 'C', 'D', 'E', 'F']:
+                    option_text = request.POST.get(f'task3_option_{letter}')
+                    option = task3.options.filter(letter=letter).first()
+                    if option:
+                        option.text = option_text
+                        option.save()
+                # Обновляем вопросы задания 3
+                questions = list(task3.questions.all())
+                for i in range(1, 6):
+                    if i <= len(questions):
+                        questions[i-1].text = request.POST.get(f'task3_text_{i}')
+                        questions[i-1].correct_letter = request.POST.get(f'task3_question_{i}')
+                        questions[i-1].save()
+            
+            # 4. Обновляем Задание 4
+            if len(second_tasks) > 1:
+                task4 = second_tasks[1]
+                # Обновляем опции задания 4
+                for letter in ['A', 'B', 'C', 'D', 'E', 'F']:
+                    option_text = request.POST.get(f'task4_option_{letter}')
+                    option = task4.options.filter(letter=letter).first()
+                    if option:
+                        option.text = option_text
+                        option.save()
+                # Обновляем вопросы задания 4
+                questions = list(task4.questions.all())
+                for i in range(1, 6):
+                    if i <= len(questions):
+                        questions[i-1].text = request.POST.get(f'task4_text_{i}')
+                        questions[i-1].correct_letter = request.POST.get(f'task4_question_{i}')
+                        questions[i-1].save()
+            
+            # 5. Обновляем Задание 5
+            task5_list = list(reading.third_tasks.all())
+            for i in range(1, 11):
+                if i <= len(task5_list):
+                    task5 = task5_list[i-1]
+                    task5.text = request.POST.get(f'task5_text_{i}')
+                    task5.correct_letter = request.POST.get(f'task5_question_{i}')
+                    task5.save()
+                    # Обновляем варианты ответов
+                    for letter in ['A', 'B', 'C']:
+                        option_text = request.POST.get(f'task5_option{letter}_{i}')
+                        option = task5.options.filter(letter=letter).first()
+                        if option:
+                            option.text = option_text
+                            option.save()
+            
+            return redirect('hsk3/hsk3:reading_detail', pk=reading.pk)
+            
+        except Exception as e:
+            context = self.get_context_data()
+            context['error'] = f'Ошибка при обновлении: {str(e)}'
+            return self.render_to_response(context)
+    
+    def get_success_url(self):
+        return reverse_lazy('hsk3:reading_detail', kwargs={'pk': self.object.pk})
+
+class ReadingDeleteView(DeleteView):
+    model = Reading
+    template_name = 'hsk3/reading_confirm_delete.html'
+    success_url = reverse_lazy('hsk3:reading_list')
+
+### WRITING
+
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
+from django.urls import reverse_lazy
+from django.shortcuts import redirect
+from .models import *
+
+class WritingListView(ListView):
+    model = Writing
+    template_name = 'hsk3/writing_list.html'
+    context_object_name = 'writing_variants'
+
+class WritingCreateView(CreateView):
+    model = Writing
+    template_name = 'hsk3/writing_form.html'
+    fields = []
+    
+    def get(self, request, *args, **kwargs):
+        return self.render_to_response({})
+    
+    def post(self, request, *args, **kwargs):
+        try:
+            # 1. Создаем основной вариант
+            writing_var = Writing.objects.create()
+            
+            # 2. Задание 1 (5 заданий на составление предложений)
+            for i in range(1, 6):
+                chars = request.POST.get(f'task1_chars_{i}')
+                correct_answer = request.POST.get(f'task1_answer_{i}')
+                WritingFirstTask.objects.create(
+                    chars=chars.strip(),
+                    correct_answer=correct_answer.strip(),
+                    writing_var=writing_var
+                )
+            
+            # 3. Задание 2 (5 заданий на написание иероглифов)
+            for i in range(1, 6):
+                text = request.POST.get(f'task2_text_{i}')
+                correct_answer = request.POST.get(f'task2_answer_{i}')
+                WritingSecondTask.objects.create(
+                    text=text.strip(),
+                    correct_answer=correct_answer.strip(),
+                    writing_var=writing_var
+                )
+            
+            return redirect('hsk3:writing_detail', pk=writing_var.pk)
+            
+        except Exception as e:
+            return self.render_to_response({
+                'error': f'Ошибка при создании: {str(e)}'
+            })
+
+class WritingDetailView(DetailView):
+    model = Writing
+    template_name = 'hsk3/writing_detail.html'
+    context_object_name = 'writing'
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        writing = self.object
+        
+        # Получаем все задания для отображения
+        context['task1_list'] = writing.first_tasks.all()
+        context['task2_list'] = writing.second_tasks.all()
+        
+        return context
+
+class WritingUpdateView(UpdateView):
+    model = Writing
+    template_name = 'hsk3/writing_form.html'
+    fields = []
+    
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        context = self.get_context_data()
+        
+        writing = self.object
+        context['writing'] = writing
+        context['is_update'] = True
+        
+        # Задание 1 (WritingFirstTask)
+        task1_list = list(writing.first_tasks.all())
+        context['task1_list'] = task1_list
+        
+        # Задание 2 (WritingSecondTask)
+        task2_list = list(writing.second_tasks.all())
+        context['task2_list'] = task2_list
+        
+        return self.render_to_response(context)
+    
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        writing = self.object
+        
+        try:
+            # 1. Обновляем Задание 1
+            task1_list = list(writing.first_tasks.all())
+            for i in range(1, 6):
+                if i <= len(task1_list):
+                    task1 = task1_list[i-1]
+                    task1.chars = request.POST.get(f'task1_chars_{i}')
+                    task1.correct_answer = request.POST.get(f'task1_answer_{i}')
+                    task1.save()
+            
+            # 2. Обновляем Задание 2
+            task2_list = list(writing.second_tasks.all())
+            for i in range(1, 6):
+                if i <= len(task2_list):
+                    task2 = task2_list[i-1]
+                    task2.text = request.POST.get(f'task2_text_{i}')
+                    task2.correct_answer = request.POST.get(f'task2_answer_{i}')
+                    task2.save()
+            
+            return redirect('hsk3:writing_detail', pk=writing.pk)
+            
+        except Exception as e:
+            context = self.get_context_data()
+            context['error'] = f'Ошибка при обновлении: {str(e)}'
+            return self.render_to_response(context)
+    
+    def get_success_url(self):
+        return reverse_lazy('hsk3:writing_detail', kwargs={'pk': self.object.pk})
+
+class WritingDeleteView(DeleteView):
+    model = Writing
+    template_name = 'hsk3/writing_confirm_delete.html'
+    success_url = reverse_lazy('hsk3:writing_list')
