@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{% if is_update %}Редактирование{% else %}Создание{% endif %} варианта аудирования HSK4</title>
+    <style>
+        .section {
+            border: 2px solid #E91E63;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 10px;
+            background: #fce4ec;
+        }
+        .question {
+            background: white;
+            padding: 15px;
+            margin: 10px 0;
+            border-left: 4px solid #2196F3;
+            border-radius: 5px;
+        }
+        .option {
+            background: #e3f2fd;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 3px;
+        }
+        .boolean-question {
+            background: #fff3e0;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border-left: 4px solid #FF9800;
+        }
+        input, select, textarea {
+            padding: 8px;
+            margin: 5px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        textarea {
+            height: 80px;
+            resize: vertical;
+        }
+        input[type="text"] {
+            width: 100px;
+        }
+        select {
+            width: 150px;
+        }
+        label {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 5px;
+            margin-top: 10px;
+        }
+        .question-number {
+            font-size: 16px;
+            font-weight: bold;
+            color: #E91E63;
+            margin-bottom: 10px;
+        }
+        .form-container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .options-container {
+            margin-left: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <h1>{% if is_update %}✏️ Редактирование{% else %}🎧 Создание{% endif %} варианта аудирования HSK4</h1>
+        
+        {% if error %}
+        <div style="color: red; padding: 10px; background: #ffebee; border: 1px solid red;">
+            {{ error }}
+        </div>
+        {% endif %}
+        
+        <form method="post">
+            {% csrf_token %}
+
+            <!-- Основной вариант -->
+            <div class="section">
+                <h2>🎧 Основные данные варианта</h2>
+                <label>ID аудио файла:</label>
+                <input type="text" name="audio_id" required placeholder="audio_hsk4_123">
+            </div>
+
+            <!-- Задание 1 -->
+            <div class="section">
+                <h2>1️⃣ Задание 1 (10 вопросов - Да/Нет)</h2>
+                
+                <h3>Вопросы (отметьте правильные ответы):</h3>
+                {% for i in "1234567890" %}
+                <div class="boolean-question">
+                    <div class="question-number">Вопрос {{ forloop.counter }}</div>
+                    
+                    <label>Текст вопроса:</label>
+                    <textarea name="task1_text_{{ forloop.counter }}" placeholder="Текст вопроса..." required></textarea>
+                    
+                    <input type="checkbox" name="task1_question_{{ forloop.counter }}" value="true">
+                    <label>Правильный ответ</label>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Задание 2 -->
+            <div class="section">
+                <h2>2️⃣ Задание 2 (15 вопросов с вариантами ответов)</h2>
+                
+                <h3>Вопросы и варианты ответов (A-D):</h3>
+                {% for i in "123456789012345" %}
+                <div class="question">
+                    <div class="question-number">Вопрос {{ forloop.counter }}</div>
+                    
+                    <label>Правильная буква:</label>
+                    <select name="task2_question_{{ forloop.counter }}" required>
+                        <option value="">-- Выберите букву --</option>
+                        <option value="A">A</option>
+                        <option value="B">B</option>
+                        <option value="C">C</option>
+                        <option value="D">D</option>
+                    </select>
+                    
+                    <h4>Варианты ответов:</h4>
+                    <div class="options-container">
+                        {% for letter in "ABCD" %}
+                        <div class="option">
+                            <strong>Вариант {{ letter }}:</strong>
+                            <input type="text" name="task2_option{{ letter }}_{{ forloop.parentloop.counter }}" required placeholder="Текст варианта {{ letter }}">
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Задание 3 -->
+            <div class="section">
+                <h2>3️⃣ Задание 3 (20 вопросов с вариантами ответов)</h2>
+                
+                <h3>Вопросы и варианты ответов (A-D):</h3>
+                {% for i in "12345678901234567890" %}
+                <div class="question">
+                    <div class="question-number">Вопрос {{ forloop.counter }}</div>
+                    
+                    <label>Правильная буква:</label>
+                    <select name="task3_question_{{ forloop.counter }}" required>
+                        <option value="">-- Выберите букву --</option>
+                        <option value="A">A</option>
+                        <option value="B">B</option>
+                        <option value="C">C</option>
+                        <option value="D">D</option>
+                    </select>
+                    
+                    <h4>Варианты ответов:</h4>
+                    <div class="options-container">
+                        {% for letter in "ABCD" %}
+                        <div class="option">
+                            <strong>Вариант {{ letter }}:</strong>
+                            <input type="text" name="task3_option{{ letter }}_{{ forloop.parentloop.counter }}" required placeholder="Текст варианта {{ letter }}">
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div style="text-align: center; margin-top: 30px;">
+                <button type="submit" style="
+                    padding: 12px 30px; 
+                    font-size: 16px; 
+                    background: {% if is_update %}#FF9800{% else %}#E91E63{% endif %}; 
+                    color: white; 
+                    border: none; 
+                    border-radius: 5px;
+                    cursor: pointer;
+                    margin-right: 10px;
+                ">
+                    {% if is_update %}💾 Сохранить изменения{% else %}✅ Создать вариант аудирования{% endif %}
+                </button>
+
+                {% if is_update %}
+                <a href="{% url 'hsk4:listening_detail' listening.pk %}" style="
+                    padding: 12px 30px; 
+                    font-size: 16px; 
+                    background: #ccc; 
+                    color: black; 
+                    border: none; 
+                    border-radius: 5px;
+                    text-decoration: none;
+                ">
+                    ❌ Отмена
+                </a>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+</body>
+</html>

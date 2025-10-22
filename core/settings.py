@@ -40,7 +40,8 @@ INSTALLED_APPS = [
     'main',
     'hsk1',
     'hsk2',
-    'hsk3'
+    'hsk3',
+    'hsk4'
 ]
 
 MIDDLEWARE = [

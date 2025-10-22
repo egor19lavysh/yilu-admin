@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Все варианты письма</title>
+</head>
+<body>
+    <h1>Варианты письма HSK4</h1>
+
+    <a href="{% url 'hsk4:sections' %}">Назад к секциям</a>
+    <br>
+    <a href="{% url 'hsk4:writing_create' %}">Создать новый вариант</a>
+    
+    <ul>
+    {% for variant in writing_variants %}
+        <li>
+            <strong>Вариант {{ variant.id }}</strong>
+            <br>
+            <a href="{% url 'hsk4:writing_detail' variant.pk %}">Просмотреть</a> |
+            <a href="{% url 'hsk4:writing_update' variant.pk %}">Редактировать</a> |
+            <a href="{% url 'hsk4:writing_delete' variant.pk %}">Удалить</a>
+        </li>
+    {% empty %}
+        <li>Нет вариантов письма</li>
+    {% endfor %}
+    </ul>
+</body>
+</html>

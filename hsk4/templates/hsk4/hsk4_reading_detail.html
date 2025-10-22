@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Вариант чтения HSK4 #{{ reading.id }}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #3F51B5;
+            padding-bottom: 10px;
+        }
+        .actions {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        .actions a {
+            padding: 8px 16px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .back-btn { background: #757575; color: white; }
+        .edit-btn { background: #FF9800; color: white; }
+        .delete-btn { background: #f44336; color: white; }
+        
+        .task-section {
+            border: 2px solid #3F51B5;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 10px;
+            background: #e8eaf6;
+        }
+        .question {
+            background: white;
+            padding: 12px;
+            margin: 8px 0;
+            border-left: 4px solid #2196F3;
+            border-radius: 5px;
+        }
+        .option {
+            background: #e3f2fd;
+            padding: 8px;
+            margin: 4px 0;
+            border-radius: 3px;
+            margin-left: 20px;
+        }
+        .task-options {
+            background: #f3e5f5;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border-left: 4px solid #9C27B0;
+        }
+        .sequence-task {
+            background: #fff3e0;
+            padding: 12px;
+            margin: 8px 0;
+            border-radius: 5px;
+            border-left: 4px solid #FF9800;
+        }
+        .text-task {
+            background: #e8f5e8;
+            padding: 12px;
+            margin: 8px 0;
+            border-radius: 5px;
+            border-left: 4px solid #4CAF50;
+        }
+        .text-question {
+            background: #f1f8e9;
+            padding: 10px;
+            margin: 6px 0;
+            border-radius: 3px;
+            border-left: 4px solid #8BC34A;
+            margin-left: 20px;
+        }
+        .correct {
+            background: #c8e6c9;
+            border-left: 4px solid #4CAF50;
+        }
+        .info-row {
+            display: flex;
+            margin: 5px 0;
+        }
+        .info-label {
+            font-weight: bold;
+            min-width: 200px;
+        }
+        .question-number {
+            font-size: 16px;
+            font-weight: bold;
+            color: #3F51B5;
+            margin-bottom: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>📖 Вариант чтения HSK4 #{{ reading.id }}</h1>
+    </div>
+
+    <!-- Задание 1 -->
+    <div class="task-section">
+        <h2>1️⃣ Задание 1 (6 опций + 5 вопросов)</h2>
+        {% with task1=reading.first_type_tasks.first %}
+        {% if task1 %}
+        <div class="task-options">
+            <h3>Опции для выбора:</h3>
+            {% for option in task1.options.all %}
+            <div class="option">
+                <strong>{{ option.letter }}:</strong> {{ option.text }}
+            </div>
+            {% endfor %}
+        </div>
+        
+        <h3>Вопросы:</h3>
+        {% for sentence in task1.sentences.all %}
+        <div class="question">
+            <div class="question-number">Вопрос {{ forloop.counter }}</div>
+            {{ sentence.text }}<br>
+            <strong>Правильный ответ:</strong> {{ sentence.correct_letter }}
+        </div>
+        {% endfor %}
+        {% else %}
+        <p style="color: #666;">Задание не заполнено</p>
+        {% endif %}
+        {% endwith %}
+    </div>
+
+    <!-- Задание 2 -->
+    <div class="task-section">
+        <h2>2️⃣ Задание 2 (6 опций + 5 вопросов)</h2>
+        {% with task2=reading.first_type_tasks.all.1 %}
+        {% if task2 %}
+        <div class="task-options">
+            <h3>Опции для выбора:</h3>
+            {% for option in task2.options.all %}
+            <div class="option">
+                <strong>{{ option.letter }}:</strong> {{ option.text }}
+            </div>
+            {% endfor %}
+        </div>
+        
+        <h3>Вопросы:</h3>
+        {% for sentence in task2.sentences.all %}
+        <div class="question">
+            <div class="question-number">Вопрос {{ forloop.counter }}</div>
+            {{ sentence.text }}<br>
+            <strong>Правильный ответ:</strong> {{ sentence.correct_letter }}
+        </div>
+        {% endfor %}
+        {% else %}
+        <p style="color: #666;">Задание не заполнено</p>
+        {% endif %}
+        {% endwith %}
+    </div>
+
+    <!-- Задание 3 -->
+    <div class="task-section">
+        <h2>3️⃣ Задание 3 (10 заданий с последовательностью)</h2>
+        
+        <h3>Задания:</h3>
+        {% for task3 in reading.second_type_tasks.all %}
+        <div class="sequence-task">
+            <div class="question-number">Задание {{ forloop.counter }}</div>
+            <strong>Правильная последовательность:</strong> {{ task3.correct_sequence }}
+            
+            <h4>Опции:</h4>
+            {% for option in task3.options.all %}
+            <div class="option">
+                <strong>{{ option.letter }}:</strong> {{ option.text }}
+            </div>
+            {% endfor %}
+        </div>
+        {% empty %}
+        <p style="color: #666;">Задание не заполнено</p>
+        {% endfor %}
+    </div>
+
+    <!-- Задание 4 -->
+    <div class="task-section">
+        <h2>4️⃣ Задание 4 (20 текстов с вопросами)</h2>
+        
+        <h3>Тексты и вопросы:</h3>
+        {% for task4 in reading.third_type_tasks.all %}
+        <div class="text-task">
+            <div class="question-number">Текст {{ forloop.counter }}</div>
+            {{ task4.text }}
+            
+            {% for question in task4.questions.all %}
+            <div class="text-question">
+                <div class="question-number">Вопрос {{ forloop.counter }}</div>
+                {{ question.text }}<br>
+                <strong>Правильный ответ:</strong> {{ question.correct_letter }}
+                
+                <h4>Варианты ответов:</h4>
+                {% for option in question.options.all %}
+                <div class="option {% if option.letter == question.correct_letter %}correct{% endif %}">
+                    <strong>{{ option.letter }}:</strong> {{ option.text }}
+                    {% if option.letter == question.correct_letter %} ✅{% endif %}
+                </div>
+                {% endfor %}
+            </div>
+            {% endfor %}
+        </div>
+        {% empty %}
+        <p style="color: #666;">Задание не заполнено</p>
+        {% endfor %}
+    </div>
+
+    <!-- Задание 5 -->
+    <div class="task-section">
+        <h2>5️⃣ Задание 5 (3 текста по 2 вопроса)</h2>
+        
+        <h3>Тексты и вопросы:</h3>
+        {% for task5 in reading.third_type_tasks.all|slice:"20:23" %}
+        <div class="text-task">
+            <div class="question-number">Текст {{ forloop.counter }}</div>
+            {{ task5.text }}
+            
+            {% for question in task5.questions.all %}
+            <div class="text-question">
+                <div class="question-number">Вопрос {{ forloop.counter }}</div>
+                {{ question.text }}<br>
+                <strong>Правильный ответ:</strong> {{ question.correct_letter }}
+                
+                <h4>Варианты ответов:</h4>
+                {% for option in question.options.all %}
+                <div class="option {% if option.letter == question.correct_letter %}correct{% endif %}">
+                    <strong>{{ option.letter }}:</strong> {{ option.text }}
+                    {% if option.letter == question.correct_letter %} ✅{% endif %}
+                </div>
+                {% endfor %}
+            </div>
+            {% endfor %}
+        </div>
+        {% empty %}
+        <p style="color: #666;">Задание не заполнено</p>
+        {% endfor %}
+    </div>
+
+    <div class="actions">
+        <a href="{% url 'hsk4:reading_list' %}" class="back-btn">← Назад к списку</a>
+        <a href="{% url 'hsk4:reading_update' reading.pk %}" class="edit-btn">✏️ Редактировать</a>
+        <a href="{% url 'hsk4:reading_delete' reading.pk %}" class="delete-btn">🗑️ Удалить</a>
+    </div>
+</body>
+</html>
