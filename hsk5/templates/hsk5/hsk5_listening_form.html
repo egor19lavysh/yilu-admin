@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{% if is_update %}Редактирование{% else %}Создание{% endif %} варианта аудирования HSK5</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .section {
+            border: 2px solid #3F51B5;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 10px;
+            background: #e8eaf6;
+        }
+        .task-section {
+            border: 2px solid #FF9800;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 8px;
+            background: #fff3e0;
+        }
+        .option-row {
+            display: flex;
+            gap: 10px;
+            margin: 8px 0;
+            align-items: center;
+        }
+        .option-letter {
+            font-weight: bold;
+            min-width: 30px;
+            color: #3F51B5;
+        }
+        input, textarea {
+            padding: 8px;
+            margin: 5px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-family: Arial, sans-serif;
+        }
+        textarea {
+            width: 100%;
+            height: 60px;
+            resize: vertical;
+            box-sizing: border-box;
+        }
+        input[type="text"] {
+            height: 40px;
+        }
+        .correct-letter {
+            width: 60px;
+            text-align: center;
+            font-weight: bold;
+        }
+        .option-text {
+            flex: 1;
+        }
+        label {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 5px;
+            margin-top: 10px;
+        }
+        .question-number {
+            font-size: 16px;
+            font-weight: bold;
+            color: #3F51B5;
+            margin-bottom: 10px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid #ccc;
+        }
+        .audio-field {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            border-left: 4px solid #2196F3;
+        }
+        .task-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .task-count {
+            background: #3F51B5;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div style="max-width: 800px; margin: 0 auto;">
+        <h1>{% if is_update %}✏️ Редактирование{% else %}🎧 Создание{% endif %} варианта аудирования HSK5</h1>
+        
+        {% if error %}
+        <div style="color: red; padding: 10px; background: #ffebee; border: 1px solid red;">
+            {{ error }}
+        </div>
+        {% endif %}
+        
+        <form method="post">
+            {% csrf_token %}
+
+            <!-- Поле для audio_id -->
+            <div class="audio-field">
+                <h2>🎵 Аудио файл</h2>
+                <label>ID аудио файла:</label>
+                {% if is_update and listening %}
+                <input type="text" name="audio_id" placeholder="例如：hsk5_listening_001" required value="{{ listening.audio_id }}">
+                {% else %}
+                <input type="text" name="audio_id" placeholder="例如：hsk5_listening_001" required>
+                {% endif %}
+            </div>
+
+            <!-- Задание 1 -->
+            <div class="section">
+                <div class="task-header">
+                    <h2>1️⃣ Задание 1 (20 вопросов)</h2>
+                    <span class="task-count">A-D выбор</span>
+                </div>
+                <p><em>Прослушайте диалог и выберите правильный ответ из 4 вариантов</em></p>
+                
+                {% for i in "12345678901234567890" %}
+                <div class="task-section">
+                    <div class="question-number">Вопрос {{ forloop.counter }}</div>
+                    
+                    <label>Правильная буква ответа:</label>
+                    <input type="text" name="task1_correct_{{ forloop.counter }}" placeholder="A, B, C или D" required 
+                           maxlength="1" class="correct-letter"
+                           {% if is_update and task1_list and forloop.counter0 < task1_list|length %}
+                           value="{{ task1_list.forloop.counter0.correct_letter }}"
+                           {% endif %}>
+                    
+                    <label>Варианты ответов:</label>
+                    {% for letter in "ABCD" %}
+                    <div class="option-row">
+                        <div class="option-letter">{{ letter }}:</div>
+                        <input type="text" name="task1_option_{{ forloop.parentloop.counter }}_{{ letter }}" 
+                               placeholder="Текст варианта {{ letter }}" required class="option-text"
+                               {% if is_update and task1_list and forloop.parentloop.counter0 < task1_list|length %}
+                               {% with task1=task1_list.forloop.parentloop.counter0 %}
+                               {% for option in task1.options.all %}
+                               {% if option.letter == letter %}
+                               value="{{ option.text }}"
+                               {% endif %}
+                               {% endfor %}
+                               {% endwith %}
+                               {% endif %}>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Задание 2 -->
+            <div class="section">
+                <div class="task-header">
+                    <h2>2️⃣ Задание 2 (25 вопросов)</h2>
+                    <span class="task-count">A-D выбор</span>
+                </div>
+                <p><em>Прослушайте вопрос и выберите правильный ответ из 4 вариантов</em></p>
+                
+                {% for i in "1234567890123456789012345" %}
+                <div class="task-section">
+                    <div class="question-number">Вопрос {{ forloop.counter }}</div>
+                    
+                    <label>Правильная буква ответа:</label>
+                    <input type="text" name="task2_correct_{{ forloop.counter }}" placeholder="A, B, C или D" required 
+                           maxlength="1" class="correct-letter"
+                           {% if is_update and task2_list and forloop.counter0 < task2_list|length %}
+                           value="{{ task2_list.forloop.counter0.correct_letter }}"
+                           {% endif %}>
+                    
+                    <label>Варианты ответов:</label>
+                    {% for letter in "ABCD" %}
+                    <div class="option-row">
+                        <div class="option-letter">{{ letter }}:</div>
+                        <input type="text" name="task2_option_{{ forloop.parentloop.counter }}_{{ letter }}" 
+                               placeholder="Текст варианта {{ letter }}" required class="option-text"
+                               {% if is_update and task2_list and forloop.parentloop.counter0 < task2_list|length %}
+                               {% with task2=task2_list.forloop.parentloop.counter0 %}
+                               {% for option in task2.options.all %}
+                               {% if option.letter == letter %}
+                               value="{{ option.text }}"
+                               {% endif %}
+                               {% endfor %}
+                               {% endwith %}
+                               {% endif %}>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endfor %}
+            </div>
+
+            <div style="text-align: center; margin-top: 30px;">
+                <button type="submit" style="
+                    padding: 12px 30px; 
+                    font-size: 16px; 
+                    background: {% if is_update %}#FF9800{% else %}#3F51B5{% endif %}; 
+                    color: white; 
+                    border: none; 
+                    border-radius: 5px;
+                    cursor: pointer;
+                    margin-right: 10px;
+                ">
+                    {% if is_update %}💾 Сохранить изменения{% else %}✅ Создать вариант аудирования{% endif %}
+                </button>
+
+                {% if is_update %}
+                <a href="{% url 'hsk5:listening_detail' listening.pk %}" style="
+                    padding: 12px 30px; 
+                    font-size: 16px; 
+                    background: #ccc; 
+                    color: black; 
+                    border: none; 
+                    border-radius: 5px;
+                    text-decoration: none;
+                ">
+                    ❌ Отмена
+                </a>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+</body>
+</html>

@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Список вариантов чтения HSK5</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #4CAF50;
+            padding-bottom: 15px;
+        }
+        .create-btn {
+            background: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .variant-card {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .variant-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .variant-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #4CAF50;
+        }
+        .variant-info {
+            display: flex;
+            gap: 15px;
+            margin: 10px 0;
+            color: #666;
+            flex-wrap: wrap;
+        }
+        .info-item {
+            background: #f5f5f5;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 14px;
+        }
+        .actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .action-btn {
+            padding: 6px 12px;
+            border-radius: 4px;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        .view-btn { background: #2196F3; color: white; }
+        .edit-btn { background: #FF9800; color: white; }
+        .delete-btn { background: #f44336; color: white; }
+        .empty-state {
+            text-align: center;
+            color: #666;
+            padding: 40px;
+            background: #f9f9f9;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>📖 Варианты чтения HSK5</h1>
+        <a href="{% url 'hsk5:reading_create' %}" class="create-btn">➕ Создать вариант</a>
+    </div>
+
+    {% if reading_variants %}
+        {% for variant in reading_variants %}
+        <div class="variant-card">
+            <div class="variant-header">
+                <div class="variant-title">Вариант #{{ variant.id }}</div>
+            </div>
+            
+            <div class="variant-info">
+                <div class="info-item">1️⃣ {{ variant.first_type_tasks.count }}/4 текста</div>
+                <div class="info-item">2️⃣ {{ variant.second_type_tasks.count }}/10 вопросов</div>
+                <div class="info-item">3️⃣ {{ variant.third_type_tasks.count }}/1 текст</div>
+                {% with total_questions=variant.first_type_tasks.count|add:variant.second_type_tasks.count|add:variant.third_type_tasks.count %}
+                <div class="info-item">📊 Всего: {{ total_questions }} заданий</div>
+                {% endwith %}
+            </div>
+            
+            <div class="actions">
+                <a href="{% url 'hsk5:reading_detail' variant.pk %}" class="action-btn view-btn">👁️ Просмотр</a>
+                <a href="{% url 'hsk5:reading_update' variant.pk %}" class="action-btn edit-btn">✏️ Редактировать</a>
+                <a href="{% url 'hsk5:reading_delete' variant.pk %}" class="action-btn delete-btn">🗑️ Удалить</a>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="empty-state">
+            <h2>📭 Варианты не найдены</h2>
+            <p>Пока не создано ни одного варианта чтения.</p>
+            <a href="{% url 'hsk5:reading_create' %}" class="create-btn">Создать первый вариант</a>
+        </div>
+    {% endif %}
+</body>
+</html>

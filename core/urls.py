@@ -24,4 +24,5 @@ urlpatterns = [
     path('hsk2/', include("hsk2.urls")),
     path('hsk3/', include("hsk3.urls")),
     path('hsk4/', include("hsk4.urls")),
+    path('hsk5/', include("hsk5.urls")),
 ]

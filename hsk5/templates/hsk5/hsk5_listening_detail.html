@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Вариант аудирования HSK5 #{{ listening.id }}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #3F51B5;
+            padding-bottom: 10px;
+        }
+        .actions {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        .actions a {
+            padding: 8px 16px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .back-btn { background: #757575; color: white; }
+        .edit-btn { background: #FF9800; color: white; }
+        .delete-btn { background: #f44336; color: white; }
+        
+        .section {
+            border: 2px solid #3F51B5;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 10px;
+            background: #e8eaf6;
+        }
+        .task-section {
+            background: white;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border-left: 4px solid #2196F3;
+        }
+        .option-row {
+            display: flex;
+            margin: 5px 0;
+            padding: 5px 0;
+        }
+        .option-letter {
+            font-weight: bold;
+            min-width: 30px;
+            color: #3F51B5;
+        }
+        .correct-option {
+            background: #c8e6c9;
+            border-radius: 3px;
+            padding: 5px;
+            border-left: 3px solid #4CAF50;
+        }
+        .question-number {
+            font-size: 16px;
+            font-weight: bold;
+            color: #3F51B5;
+            margin-bottom: 10px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid #eee;
+        }
+        .audio-info {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            border-left: 4px solid #2196F3;
+        }
+        .info-row {
+            display: flex;
+            margin: 5px 0;
+        }
+        .info-label {
+            font-weight: bold;
+            min-width: 150px;
+        }
+        .task-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .task-count {
+            background: #3F51B5;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🎧 Вариант аудирования HSK5 #{{ listening.id }}</h1>
+    </div>
+
+    <div class="audio-info">
+        <div class="info-row">
+            <div class="info-label">ID аудио файла:</div>
+            <div>{{ listening.audio_id }}</div>
+        </div>
+    </div>
+
+    <!-- Задание 1 -->
+    <div class="section">
+        <div class="task-header">
+            <h2>1️⃣ Задание 1 (20 вопросов)</h2>
+            <span class="task-count">{{ task1_list|length }}/20 вопросов</span>
+        </div>
+        
+        {% for task in task1_list %}
+        <div class="task-section">
+            <div class="question-number">Вопрос {{ forloop.counter }}</div>
+            
+            <div class="info-row">
+                <div class="info-label">Правильный ответ:</div>
+                <div style="font-weight: bold; color: #4CAF50;">{{ task.correct_letter }}</div>
+            </div>
+            
+            <div class="info-row">
+                <div class="info-label">Варианты ответов:</div>
+                <div style="flex: 1;">
+                    {% for option in task.options.all %}
+                    <div class="option-row {% if option.letter == task.correct_letter %}correct-option{% endif %}">
+                        <div class="option-letter">{{ option.letter }}:</div>
+                        <div>{{ option.text }}</div>
+                        {% if option.letter == task.correct_letter %} ✅{% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <p style="color: #666; text-align: center;">Задание не заполнено</p>
+        {% endfor %}
+    </div>
+
+    <!-- Задание 2 -->
+    <div class="section">
+        <div class="task-header">
+            <h2>2️⃣ Задание 2 (25 вопросов)</h2>
+            <span class="task-count">{{ task2_list|length }}/25 вопросов</span>
+        </div>
+        
+        {% for task in task2_list %}
+        <div class="task-section">
+            <div class="question-number">Вопрос {{ forloop.counter }}</div>
+            
+            <div class="info-row">
+                <div class="info-label">Правильный ответ:</div>
+                <div style="font-weight: bold; color: #4CAF50;">{{ task.correct_letter }}</div>
+            </div>
+            
+            <div class="info-row">
+                <div class="info-label">Варианты ответов:</div>
+                <div style="flex: 1;">
+                    {% for option in task.options.all %}
+                    <div class="option-row {% if option.letter == task.correct_letter %}correct-option{% endif %}">
+                        <div class="option-letter">{{ option.letter }}:</div>
+                        <div>{{ option.text }}</div>
+                        {% if option.letter == task.correct_letter %} ✅{% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <p style="color: #666; text-align: center;">Задание не заполнено</p>
+        {% endfor %}
+    </div>
+
+    <div class="actions">
+        <a href="{% url 'hsk5:listening_list' %}" class="back-btn">← Назад к списку</a>
+        <a href="{% url 'hsk5:listening_update' listening.pk %}" class="edit-btn">✏️ Редактировать</a>
+        <a href="{% url 'hsk5:listening_delete' listening.pk %}" class="delete-btn">🗑️ Удалить</a>
+    </div>
+</body>
+</html>
