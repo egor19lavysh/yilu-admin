@@ -16,7 +16,6 @@ class AdvancedAuthMiddleware:
         PUBLIC_URLS = [
             '/login/',
             '/logout/',
-            '/admin/login/'
         ]
 
 
